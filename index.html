@@ -21,19 +21,29 @@
             margin-bottom: 10px;
             border-radius: 5px;
         }
+        .error {
+            color: red;
+        }
     </style>
 </head>
 <body>
     <h1>Solana Wallet Activity</h1>
-    <input type="text" id="walletAddress" placeholder="Enter Solana Wallet Address">
+    <input type="text" id="walletAddress" placeholder="Enter Solana Wallet Address" value="6Pa9NyVaNg4yfuYgA5QddSreTz2W5dsh2zH16yVPnwnh">
     <button onclick="getWalletActivity()">Get Activity</button>
     <div id="activity"></div>
+    <div id="error" class="error"></div>
 
     <script>
         async function getWalletActivity() {
-            const walletAddress = document.getElementById('walletAddress').value;
+            const walletAddress = document.getElementById('walletAddress').value.trim();
+            const errorDiv = document.getElementById('error');
+            const activityDiv = document.getElementById('activity');
+            
+            errorDiv.innerHTML = '';
+            activityDiv.innerHTML = '';
+
             if (!walletAddress) {
-                alert('Please enter a wallet address');
+                errorDiv.innerHTML = 'Please enter a wallet address';
                 return;
             }
 
@@ -55,15 +65,15 @@
                 });
                 const data = await response.json();
 
-                if (data.result) {
+                if (data.result && data.result.length > 0) {
                     displayActivity(data.result);
                 } else {
-                    alert('No transactions found or invalid wallet address.');
+                    errorDiv.innerHTML = 'No transactions found or invalid wallet address.';
                     console.error('No transactions found or invalid wallet address.', data);
                 }
             } catch (error) {
                 console.error('Error fetching wallet activity:', error);
-                alert('Error fetching wallet activity. Please check the console for more details.');
+                errorDiv.innerHTML = 'Error fetching wallet activity. Please check the console for more details.';
             }
         }
 
@@ -78,6 +88,8 @@
 
             for (const transaction of transactions) {
                 const transactionDetails = await getTransactionDetails(transaction.signature);
+                if (!transactionDetails) continue;
+
                 const transactionDiv = document.createElement('div');
                 transactionDiv.classList.add('transaction');
 
@@ -117,12 +129,10 @@
                     return data.result;
                 } else {
                     console.error('Error fetching transaction details:', data);
-                    alert('Error fetching transaction details.');
                     return null;
                 }
             } catch (error) {
                 console.error('Error fetching transaction details:', error);
-                alert('Error fetching transaction details. Please check the console for more details.');
                 return null;
             }
         }
