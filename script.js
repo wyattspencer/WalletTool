@@ -1,4 +1,7 @@
-fetch('https://api.solscan.io/v1/cluster/nodes')
+const proxyUrl = 'https://cors.bridged.cc/';
+const targetUrl = 'https://api.solscan.io/v1/cluster/nodes';
+
+fetch(proxyUrl + targetUrl)
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok: ' + response.statusText);
