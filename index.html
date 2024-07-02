@@ -3,139 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solana Wallet Activity</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        #activity {
-            margin-top: 20px;
-        }
-        .transaction {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .error {
-            color: red;
-        }
-    </style>
+    <title>API Test</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Solana Wallet Activity</h1>
-    <input type="text" id="walletAddress" placeholder="Enter Solana Wallet Address" value="6Pa9NyVaNg4yfuYgA5QddSreTz2W5dsh2zH16yVPnwnh">
-    <button onclick="getWalletActivity()">Get Activity</button>
-    <div id="activity"></div>
-    <div id="error" class="error"></div>
-
-    <script>
-        async function getWalletActivity() {
-            const walletAddress = document.getElementById('walletAddress').value.trim();
-            const errorDiv = document.getElementById('error');
-            const activityDiv = document.getElementById('activity');
-            
-            errorDiv.innerHTML = '';
-            activityDiv.innerHTML = '';
-
-            if (!walletAddress) {
-                errorDiv.innerHTML = 'Please enter a wallet address';
-                return;
-            }
-
-            const url = `https://api.mainnet-beta.solana.com`;
-            const payload = {
-                jsonrpc: "2.0",
-                id: 1,
-                method: "getSignaturesForAddress",
-                params: [walletAddress, { limit: 10 }]
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const data = await response.json();
-
-                if (data.result && data.result.length > 0) {
-                    displayActivity(data.result);
-                } else {
-                    errorDiv.innerHTML = 'No transactions found or invalid wallet address.';
-                    console.error('No transactions found or invalid wallet address.', data);
-                }
-            } catch (error) {
-                console.error('Error fetching wallet activity:', error);
-                errorDiv.innerHTML = 'Error fetching wallet activity. Please check the console for more details.';
-            }
-        }
-
-        async function displayActivity(transactions) {
-            const activityDiv = document.getElementById('activity');
-            activityDiv.innerHTML = ''; // Clear previous results
-
-            if (transactions.length === 0) {
-                activityDiv.innerHTML = '<p>No transactions found for this wallet.</p>';
-                return;
-            }
-
-            for (const transaction of transactions) {
-                const transactionDetails = await getTransactionDetails(transaction.signature);
-                if (!transactionDetails) continue;
-
-                const transactionDiv = document.createElement('div');
-                transactionDiv.classList.add('transaction');
-
-                const date = new Date(transaction.blockTime * 1000);
-                const dateString = date.toLocaleString();
-
-                transactionDiv.innerHTML = `
-                    <p><strong>Transaction ID:</strong> ${transaction.signature}</p>
-                    <p><strong>Date:</strong> ${dateString}</p>
-                    <p><strong>Result:</strong> ${transactionDetails.meta.err ? 'Failed' : 'Success'}</p>
-                `;
-
-                activityDiv.appendChild(transactionDiv);
-            }
-        }
-
-        async function getTransactionDetails(signature) {
-            const url = `https://api.mainnet-beta.solana.com`;
-            const payload = {
-                jsonrpc: "2.0",
-                id: 1,
-                method: "getTransaction",
-                params: [signature, { encoding: "json" }]
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                if (data.result) {
-                    return data.result;
-                } else {
-                    console.error('Error fetching transaction details:', data);
-                    return null;
-                }
-            } catch (error) {
-                console.error('Error fetching transaction details:', error);
-                return null;
-            }
-        }
-    </script>
+    <div>
+        <h2>API Response:</h2>
+        <pre id="response"></pre>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
